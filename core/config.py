@@ -11,8 +11,8 @@ class TabularConfig:
         # TODO: priority queue
         return self.generators.keys()
 
-    def set_generator(self, col, func, *args, **kwargs):
-        self.generators[col] = partial(func, *args, **kwargs)
+    def set_generator(self, col, generator):
+        self.generators[col] = generator
 
     def get_generator(self, col):
         # TODO: error handling
