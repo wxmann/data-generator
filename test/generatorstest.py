@@ -50,13 +50,24 @@ class GeneratorTest(unittest.TestCase):
         for i in range(1, 5):
             self.assertEqual(next(repeater), second)
 
-    def test_wrap(self):
+    def test_asgenerator_function(self):
         choices = ['A', 'B', 'C']
-        wrapper = generators.wrap(random.choice, choices)
+        wrapper = generators.as_generator(random.choice, choices)
         for i in range(1, 15):
             value = next(wrapper)
             logging.info('Chose: {}'.format(value))
             self.assertIn(value, choices)
+
+    def test_asgenerator_generator(self):
+        thegen = generators.as_generator(generators.counter, start=1)
+        self.assertEqual(next(thegen), 1)
+        self.assertEqual(next(thegen), 2)
+        # self.assertRaises(ValueError, generators.as_generator, generators.const)1_
+        # gen = generators.as_generator(generators.counter, start=1)
+        # for i in range(1, 15):
+        #     value = next(gen)
+        #     logging.info('Generated value: ' + value)
+        #     self.assertEqual(value, i)
 
 
 

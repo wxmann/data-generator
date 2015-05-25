@@ -15,30 +15,29 @@ def counter(start=1, prefix=None, sep=''):
         num += 1
 
 def repeat(count, func, *args, **kwargs):
-    if inspect.isgeneratorfunction(func):
-        func_callable = func(*args, **kwargs)
-    else:
-        func_callable = wrap(func, *args, **kwargs)
-    return _repeat_generator(count, func_callable)
-
-def _repeat_generator(count, func):
+    func_callable = as_generator(func, *args, **kwargs)
     while True:
-        repeated_value = next(func)
+        repeated_value = next(func_callable)
         for i in range(0, count):
             yield repeated_value
 
-# Func cannot be a generator or else only first value is returned.
-def wrap(func, *args, **kwargs):
-    wrappedfunc = partial(func, *args, **kwargs)
-    while True:
-        yield wrappedfunc()
+# If func is a generator, return a generator that yields the same value in the same order as the original generator
+def as_generator(func, *args, **kwargs):
+    if inspect.isgeneratorfunction(func):
+        gen = func(*args, **kwargs)
+        while True:
+            yield next(gen)
+    else:
+        wrappedfunc = partial(func, *args, **kwargs)
+        while True:
+            yield wrappedfunc()
 
 def const(value):
     while True:
         yield value
 
 def choose(*args):
-    return wrap(random.choice, list(args))
+    return as_generator(random.choice, list(args))
 
 def loop(items):
     while True:
