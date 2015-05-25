@@ -4,6 +4,7 @@ __author__ = 'tangz'
 
 class TabularConfig:
 
+    # TODO: use OrderedDict
     def __init__(self):
         self.generators = {}
 

@@ -1,10 +1,14 @@
 import random
 import unittest
+import logging
 from core import generators
 
 __author__ = 'tangz'
 
 class GeneratorTest(unittest.TestCase):
+
+    def setUp(self):
+        logging.basicConfig(level=logging.INFO)
 
     def test_counter_noargs(self):
         the_counter = generators.counter()
@@ -38,21 +42,20 @@ class GeneratorTest(unittest.TestCase):
     def test_repeat_with_function(self):
         repeater = generators.repeat(5, random.randint, 1, 10)
         first = next(repeater)
-        print(first)
+        logging.info('First repeated value: {}'.format(first))
         for i in range(1, 5):
             self.assertEqual(next(repeater), first)
         second = next(repeater)
-        print(second)
+        logging.info('Second repeated value: {}'.format(second))
         for i in range(1, 5):
             self.assertEqual(next(repeater), second)
-
 
     def test_wrap(self):
         choices = ['A', 'B', 'C']
         wrapper = generators.wrap(random.choice, choices)
         for i in range(1, 15):
             value = next(wrapper)
-            print(value)
+            logging.info('Chose: {}'.format(value))
             self.assertIn(value, choices)
 
 
