@@ -31,7 +31,8 @@ class GeneratorTest(unittest.TestCase):
             self.assertEqual(next(the_counter), i+9)
 
     def test_repeat_with_generator(self):
-        the_counter = generators.repeat(5, generators.counter, prefix='CR')
+        generator = generators.as_generator(generators.counter, prefix='CR')
+        the_counter = generators.reiterate(5, generator)
         for i in range(1, 6):
             self.assertEqual(next(the_counter), 'CR1')
         for i in range(1, 6):
@@ -40,7 +41,8 @@ class GeneratorTest(unittest.TestCase):
             self.assertEqual(next(the_counter), 'CR3')
 
     def test_repeat_with_function(self):
-        repeater = generators.repeat(5, random.randint, 1, 10)
+        generator = generators.as_generator(random.randint, 1, 10)
+        repeater = generators.reiterate(5, generator)
         first = next(repeater)
         logging.info('First repeated value: {}'.format(first))
         for i in range(1, 5):

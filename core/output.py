@@ -13,3 +13,6 @@ def to_csv(csvfile, config, n):
 def generate_vals(config):
     for column in config.columns():
         yield column, next(config.get_generator(column))
+
+
+# class GeneratedRow:
