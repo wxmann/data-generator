@@ -12,7 +12,7 @@ def to_csv(csvfile, config, n):
             writer.writerow(rowdata.output())
 
 
-class ValueNotGeneratedError(Exception):
+class DependentValueNotGeneratedError(Exception):
     pass
 
 
@@ -31,7 +31,7 @@ class RowGenerator:
         try:
             return self.data[col]
         except KeyError:
-            raise ValueNotGeneratedError("Column: {0} doesn't have a generated value yet.".format(col))
+            raise DependentValueNotGeneratedError("Column: {0} doesn't have a generated value yet.".format(col))
 
     def _generate_value_with_dependencies(self, funcforcol, col_dependencies):
         args = (self._generated_value(col_dependency) for col_dependency in col_dependencies)
