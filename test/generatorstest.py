@@ -32,7 +32,7 @@ class GeneratorTest(unittest.TestCase):
 
     def test_repeat_with_generator(self):
         generator = generators.as_generator(generators.counter, prefix='CR')
-        the_counter = generators.reiterate(5, generator)
+        the_counter = generators.repeat(5, generator)
         for i in range(1, 6):
             self.assertEqual(next(the_counter), 'CR1')
         for i in range(1, 6):
@@ -42,7 +42,7 @@ class GeneratorTest(unittest.TestCase):
 
     def test_repeat_with_function(self):
         generator = generators.as_generator(random.randint, 1, 10)
-        repeater = generators.reiterate(5, generator)
+        repeater = generators.repeat(5, generator)
         first = next(repeater)
         logging.info('First repeated value: {}'.format(first))
         for i in range(1, 5):
@@ -64,12 +64,19 @@ class GeneratorTest(unittest.TestCase):
         thegen = generators.as_generator(generators.counter, start=1)
         self.assertEqual(next(thegen), 1)
         self.assertEqual(next(thegen), 2)
-        # self.assertRaises(ValueError, generators.as_generator, generators.const)1_
-        # gen = generators.as_generator(generators.counter, start=1)
-        # for i in range(1, 15):
-        #     value = next(gen)
-        #     logging.info('Generated value: ' + value)
-        #     self.assertEqual(value, i)
+
+    def test_repeat_cluster(self):
+        thegen = generators.choose('A', 'B', 'C', 'D', 'E', 'F')
+        clustergen = generators.repeat_cluster(2, thegen)
+
+        result = [next(clustergen) for i in range(10)]
+        logging.info('Result list: {}'.format(result))
+        result0 = result[0]
+        result1 = result[1]
+        for i in range(10):
+            result_to_compare = result0 if i % 2 == 0 else result1
+            self.assertEqual(result[i], result_to_compare)
+
 
 
 

@@ -14,18 +14,23 @@ def counter(start=1, prefix=None, sep=''):
             yield '{}{}{}'.format(prefix, sep, num)
         num += 1
 
-# def repeat(count, func, *args, **kwargs):
-#     func_callable = as_generator(func, *args, **kwargs)
-#     while True:
-#         repeated_value = next(func_callable)
-#         for i in range(0, count):
-#             yield repeated_value
 
-def reiterate(count, generator):
+def repeat(count, generator):
     while True:
         repeated_value = next(generator)
         for i in range(count):
             yield repeated_value
+
+
+def repeat_cluster(count, generator):
+    cluster = []
+    for i in range(count):
+        item = next(generator)
+        cluster.append(item)
+        yield item
+    while True:
+        for i in range(count):
+            yield cluster[i]
 
 
 # If func is a generator, return a generator that yields the same value in the same order as the original generator
