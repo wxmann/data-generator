@@ -1,4 +1,5 @@
 import csv
+import inspect
 
 __author__ = 'tangz'
 
@@ -7,7 +8,7 @@ def to_csv(csvfile, config, n):
         writer = csv.DictWriter(opened_file, config.columns(priority_sorted=False))
         writer.writeheader()
         rowdata = RowGenerator(config)
-        for i in range(1, n+1):
+        for i in range(n):
             rowdata.generate_row()
             writer.writerow(rowdata.output())
 
@@ -28,23 +29,24 @@ class RowGenerator:
         return rowtoreturn
 
     def _generated_value(self, col):
-        try:
+        if col in self.data:
             return self.data[col]
-        except KeyError:
+        else:
             raise DependentValueNotGeneratedError("Column: {0} doesn't have a generated value yet.".format(col))
 
-    def _generate_value_with_dependencies(self, funcforcol, col_dependencies):
-        args = (self._generated_value(col_dependency) for col_dependency in col_dependencies)
-        return funcforcol(*args)
+    def _generate_value_with_dependencies(self, funcnode):
+        col_dependencies = funcnode.dependencies
+        args = [self._generated_value(col_dependency) for col_dependency in col_dependencies]
+        funcnode.set_dependentvalues(*args)
+        return funcnode.nextvalue()
 
     def generate_row(self):
         columns = self.generatorconfig.columns()
         for col in columns:
-            genforcol = self.generatorconfig.get_generator(col)
-            if self.generatorconfig.has_dependencies(col):
-                funcforcol = genforcol
-                self.data[col] = self._generate_value_with_dependencies(funcforcol, self.generatorconfig.get_dependencies(col))
+            funcnode = self.generatorconfig.get_funcnode(col)
+            if funcnode.dependencies is not None:
+                self.data[funcnode.column] = self._generate_value_with_dependencies(funcnode)
             else:
-                self.data[col] = next(genforcol)
+                self.data[funcnode.column] = funcnode.nextvalue()
 
 
