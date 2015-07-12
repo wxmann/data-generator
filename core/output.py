@@ -48,5 +48,3 @@ class RowGenerator:
                 self.data[funcsetting.column] = self._generate_value_with_dependencies(funcsetting)
             else:
                 self.data[funcsetting.column] = funcsetting.generatevalue()
-
-

@@ -30,7 +30,7 @@ class _DependencyTracker:
         for parent in dependencies:
             func_setting.priority = max(func_setting.priority, parent.priority + 1)
 
-
+# TODO: test with generators instead of functions
 class FunctionSetting:
 
     def __init__(self, column, func, dependencies, *args, **kwargs):
@@ -51,24 +51,40 @@ class FunctionSetting:
         if self.isgenerator and self.dependencies is not None:
             raise ConfigurationError("Generators cannot be used with anything with dependencies")
 
-    def generatevalue(self):
+    def generatevalue(self, *ext_args, **ext_kwargs):
+        # TODO: figure out if this condition is needed
+        #    if len(ext_args) + len(ext_kwargs) != len(self.dependencies):
+        #     raise ConfigurationError("Number of args provided does not match number of dependencies!")
         if self.isgenerator:
             return next(self._data_returner)
         else:
-            return self._data_returner()
-
-    def set_dependentargs(self, *ext_args, **ext_kwargs):
-        if self.dependencies is not None:
-            if len(ext_args) + len(ext_kwargs) != len(self.dependencies):
-                raise ConfigurationError("Number of args provided does not match number of dependencies!")
-            self._data_returner = functools.partial(self.func, *ext_args, **ext_kwargs)
+            return self._data_returner(*ext_args, **ext_kwargs)
 
     def _preassemble_returner(self):
-        if self.dependencies is None:
-            if self.isgenerator:
-                self.data_returner = self.func(*self.args, **self.kwargs)
-            else:
-                self.data_returner = functools.partial(self.func, *self.args, **self.kwargs)
+        if self.isgenerator:
+            self._data_returner = self.func(*self.args, **self.kwargs)
+        else:
+            self._data_returner = functools.partial(self.func, *self.args, **self.kwargs)
+
+    # TODO: unit-test eq and ne
+    def __eq__(self, other):
+        if other is self:
+            return True
+        if isinstance(other, FunctionSetting):
+            return self.column == other.column \
+                   and self.func == other.func \
+                   and self.args == other.args \
+                   and self.kwargs == other.kwargs \
+                   and self.dependencies == other.dependencies \
+                   and self.priority == other.priority
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result
 
 
 class TabularConfig:
@@ -88,7 +104,7 @@ class TabularConfig:
         parentnodes = [self.col_setting_mapping[col_dependency] for col_dependency in setting_new.dependencies]
         self.dependencies.setdependencies(setting_new, parentnodes)
 
-    def set_funcsetting(self, col, func, dependencies=None, *args, **kwargs):
+    def set_funcsetting(self, col, func, *args, dependencies=None, **kwargs):
         setting_new = FunctionSetting(col, func, dependencies, *args, **kwargs)
         self.col_setting_mapping[col] = setting_new
         if dependencies is None:
