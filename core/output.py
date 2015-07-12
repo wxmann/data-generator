@@ -34,19 +34,19 @@ class RowGenerator:
         else:
             raise DependentValueNotGeneratedError("Column: {0} doesn't have a generated value yet.".format(col))
 
-    def _generate_value_with_dependencies(self, funcnode):
-        col_dependencies = funcnode.dependencies
+    def _generate_value_with_dependencies(self, funcsetting):
+        col_dependencies = funcsetting.dependencies
         args = [self._generated_value(col_dependency) for col_dependency in col_dependencies]
-        funcnode.set_dependentvalues(*args)
-        return funcnode.nextvalue()
+        funcsetting.set_dependentargs(*args)
+        return funcsetting.generatevalue()
 
     def generate_row(self):
         columns = self.generatorconfig.columns()
         for col in columns:
-            funcnode = self.generatorconfig.get_funcnode(col)
-            if funcnode.dependencies is not None:
-                self.data[funcnode.column] = self._generate_value_with_dependencies(funcnode)
+            funcsetting = self.generatorconfig.get_funcsetting(col)
+            if funcsetting.dependencies is not None:
+                self.data[funcsetting.column] = self._generate_value_with_dependencies(funcsetting)
             else:
-                self.data[funcnode.column] = funcnode.nextvalue()
+                self.data[funcsetting.column] = funcsetting.generatevalue()
 
 
