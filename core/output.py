@@ -37,8 +37,7 @@ class RowGenerator:
     def _generate_value_with_dependencies(self, funcsetting):
         col_dependencies = funcsetting.dependencies
         args = [self._generated_value(col_dependency) for col_dependency in col_dependencies]
-        funcsetting.set_dependentargs(*args)
-        return funcsetting.generatevalue()
+        return funcsetting.generatevalue(*args)
 
     def generate_row(self):
         columns = self.generatorconfig.columns()

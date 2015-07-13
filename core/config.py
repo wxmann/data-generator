@@ -68,15 +68,13 @@ class FunctionSetting:
 
     # TODO: unit-test eq and ne
     def __eq__(self, other):
-        if other is self:
-            return True
         if isinstance(other, FunctionSetting):
             return self.column == other.column \
-                   and self.func == other.func \
-                   and self.args == other.args \
-                   and self.kwargs == other.kwargs \
-                   and self.dependencies == other.dependencies \
-                   and self.priority == other.priority
+                and self.func == other.func \
+                and self.args == other.args \
+                and self.kwargs == other.kwargs \
+                and self.dependencies == other.dependencies \
+                and self.priority == other.priority
         else:
             return NotImplemented
 
@@ -100,9 +98,9 @@ class TabularConfig:
             return sorted(cols, key=prioritysortedkey)
         return cols
 
-    def _handle_dependency(self, setting_new):
-        parentnodes = [self.col_setting_mapping[col_dependency] for col_dependency in setting_new.dependencies]
-        self.dependencies.setdependencies(setting_new, parentnodes)
+    def _handle_dependency(self, setting):
+        dependencies = [self.col_setting_mapping[col_dependency] for col_dependency in setting.dependencies]
+        self.dependencies.setdependencies(setting, *dependencies)
 
     def set_funcsetting(self, col, func, *args, dependencies=None, **kwargs):
         setting_new = FunctionSetting(col, func, dependencies, *args, **kwargs)

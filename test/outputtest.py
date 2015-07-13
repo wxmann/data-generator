@@ -11,8 +11,8 @@ class OutputTest(unittest.TestCase):
 
     def test_generate_row_no_dependencies(self):
         config1 = config.TabularConfig()
-        config1.set_generator('Contract Reference', basic.const('CR1'))
-        config1.set_generator('Netting Set', basic.const('A'))
+        config1.set_funcsetting('Contract Reference', lambda: 'CR1')
+        config1.set_funcsetting('Netting Set', lambda: 'A')
 
         rowdata = output.RowGenerator(config1)
         rowdata.generate_row()
@@ -22,9 +22,9 @@ class OutputTest(unittest.TestCase):
 
     def test_generate_row_with_dependencies(self):
         config1 = config.TabularConfig()
-        config1.set_generator('Contract Reference', basic.const('CR1'))
-        config1.set_generator('Netting Set', basic.const('A'))
-        config1.set_function_with_dependency('UID', lambda x, y: '{}-{}'.format(x, y), ['Contract Reference', 'Netting Set'])
+        config1.set_funcsetting('Contract Reference', lambda: 'CR1')
+        config1.set_funcsetting('Netting Set', lambda: 'A')
+        config1.set_funcsetting('UID', lambda x, y: '{}-{}'.format(x, y), dependencies=['Contract Reference', 'Netting Set'])
 
         rowdata = output.RowGenerator(config1)
         rowdata.generate_row()
@@ -34,7 +34,7 @@ class OutputTest(unittest.TestCase):
 
     def test_output(self):
         config1 = config.TabularConfig()
-        config1.set_generator('Contract Reference', basic.counter(prefix='CR'))
-        config1.set_generator('Netting Set', basic.as_generator(random.choice, ['A', 'B', 'C', 'D']))
-        config1.set_function_with_dependency('UID', lambda x, y: '{}-{}'.format(x, y), ['Contract Reference', 'Netting Set'])
-        output.to_csv('first_test.csv', config1, 109)
+        config1.set_funcsetting('Contract_Reference', basic.counter, prefix='CR')
+        config1.set_funcsetting('Netting_Set', random.choice, ['A', 'B', 'C', 'D'])
+        config1.set_funcsetting('UID', lambda x, y: '{}-{}'.format(x, y), dependencies=['Contract_Reference', "Netting_Set"])
+        output.to_csv('second_test.csv', config1, 109)
