@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+	<global-settings>
+		<clustersize>9</clustersize>
+		<dateformat>%m/%d/%Y</dateformat>
+	</global-settings>
+	
+	<column name="STRESS_TESTING_SCENARIO_ID">
+		<const>
+			<arg type="int">0</arg>
+		</const>
+	</column>
+
+	<column name="TRANCHE_COLLATERAL_TYPE">
+		<choice>
+			<arg type="list">
+                <!-- TODO: item should have type attribute as well. Gotta parse that. -->
+				<item>COLLATERALIZED</item>
+				<item>NON COLLATERALIZED</item>
+			</arg>
+		</choice>
+	</column>
+	
+	<column name="BS_TYPE">
+		<const>
+			<arg key="value" type="string">DLO</arg>
+		</const>
+	</column>
+	
+	<column name="K_MATURITY">
+		<range>
+			<arg key="a" type="int">1</arg>
+			<arg key="b" type="int">5</arg>
+		</range>
+	</column>
+	
+	<column name="LGD">
+		<decimal />
+	</column>
+	
+</config>

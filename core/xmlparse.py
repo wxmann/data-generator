@@ -8,6 +8,7 @@ def parsexml(xmlfile):
     parser = XMLParser(xmlfile)
     return parser.parse_config()
 
+
 class XMLParser:
 
     def __init__(self, xmlfile):
@@ -17,6 +18,13 @@ class XMLParser:
     def _getxmlroot(self):
         domtree = ET.parse(self.xmlfile)
         return domtree.getroot()
+
+    def _getargwithtype(self, arg, datatype):
+        return {
+            'int': int,
+            'float': float
+            # 'date': arg  TODO: make this work
+        }.get(datatype, lambda x: x)(arg)
 
     def parse_config(self):
         columnnodes = self.root.findall('column')
@@ -41,7 +49,7 @@ class XMLParser:
                     if typeattr == 'list':
                         argtoadd = [item.text for item in argnode.findall('item')]
                     else:
-                        argtoadd = argnode.text
+                        argtoadd = self._getargwithtype(argnode.text, typeattr)
 
                     # handle kwarg
                     if keyattr is None:
