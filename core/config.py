@@ -66,7 +66,6 @@ class FunctionSetting:
         else:
             self._data_returner = functools.partial(self.func, *self.args, **self.kwargs)
 
-    # TODO: unit-test eq and ne
     def __eq__(self, other):
         if isinstance(other, FunctionSetting):
             return self.column == other.column \
