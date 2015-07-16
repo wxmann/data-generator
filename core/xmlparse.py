@@ -9,6 +9,10 @@ def parsexml(xmlfile):
     return parser.parse_config()
 
 
+class XMLFormatError(Exception):
+    pass
+
+
 class XMLParser:
 
     def __init__(self, xmlfile):
@@ -32,30 +36,33 @@ class XMLParser:
         for columnnode in columnnodes:
             # parse column information
             columnname = columnnode.get('name')
-            for child in columnnode:
-                # parse function id
-                func_id = child.tag
-                func = dictionary.lookup(func_id)
+            funcnodes = columnnode.findall('function')
+            if len(funcnodes) != 1:
+                raise XMLFormatError('Excepted only one function element for column: {0}'.format(columnname))
+            # parse function id
+            funcnode = funcnodes[0]
+            func_id = funcnode.get('id')
+            func = dictionary.lookup(func_id)
 
-                args = []
-                kwargs = {}
-                argnodes = child.findall('arg')
+            args = []
+            kwargs = {}
+            argnodes = funcnode.findall('arg')
 
-                for argnode in argnodes:
-                    keyattr = argnode.get('key')
-                    typeattr = argnode.get('type')
+            for argnode in argnodes:
+                keyattr = argnode.get('key')
+                typeattr = argnode.get('type')
 
-                    # handle list or single
-                    if typeattr == 'list':
-                        argtoadd = [item.text for item in argnode.findall('item')]
-                    else:
-                        argtoadd = self._getargwithtype(argnode.text, typeattr)
+                # handle list or single
+                if typeattr == 'list':
+                    argtoadd = [self._getargwithtype(item.text, typeattr) for item in argnode.findall('item')]
+                else:
+                    argtoadd = self._getargwithtype(argnode.text, typeattr)
 
-                    # handle kwarg
-                    if keyattr is None:
-                        args.append(argtoadd)
-                    else:
-                        kwargs[keyattr] = argtoadd
+                # handle kwarg
+                if keyattr is None:
+                    args.append(argtoadd)
+                else:
+                    kwargs[keyattr] = argtoadd
 
-                tabularconfig.set_funcsetting(columnname, func, *args, **kwargs)
+            tabularconfig.set_funcsetting(columnname, func, *args, **kwargs)
         return tabularconfig

@@ -7,36 +7,36 @@
    </global-settings>
 
    <column name="STRESS_TESTING_SCENARIO_ID">
-      <const>
+      <function id="const">
          <arg type="int">0</arg>
-      </const>
+      </function>
    </column>
 
    <column name="TRANCHE_COLLATERAL_TYPE">
-      <choice>
+      <function id="choice">
          <arg type="list">
-            <!-- TODO: item should have type attribute as well. Gotta parse that. -->
+             <!-- TODO: handle types -->
             <item>COLLATERALIZED</item>
             <item>NON COLLATERALIZED</item>
          </arg>
-      </choice>
+      </function>
    </column>
 
    <column name="BS_TYPE">
-      <const>
+      <function id="const">
          <arg key="value" type="string">DLO</arg>
-      </const>
+      </function>
    </column>
 
    <column name="K_MATURITY">
-      <range>
+      <function id="range">
          <arg key="a" type="int">1</arg>
          <arg key="b" type="int">5</arg>
-      </range>
+      </function>
    </column>
 
    <column name="LGD">
-      <decimal />
+      <function id="decimal" />
    </column>
 
 </config>
