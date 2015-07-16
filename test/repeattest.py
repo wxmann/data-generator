@@ -13,7 +13,7 @@ def incrementer(x):
 class RepeatTest(unittest.TestCase):
 
     def test_should_repeat_cluster(self):
-        funcsetting = config.FunctionSetting('ABC', incrementer, None, 3)
+        funcsetting = config.FunctionSetting(incrementer, None, 3)
         count = 3
         cluster = repeat.repeatcluster(count, funcsetting).series()
 

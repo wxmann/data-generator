@@ -44,6 +44,6 @@ class RowGenerator:
         for col in columns:
             funcsetting = self.generatorconfig.get_funcsetting(col)
             if funcsetting.dependencies is not None:
-                self.data[funcsetting.column] = self._generate_value_with_dependencies(funcsetting)
+                self.data[col] = self._generate_value_with_dependencies(funcsetting)
             else:
-                self.data[funcsetting.column] = funcsetting.generatevalue()
+                self.data[col] = funcsetting.generatevalue()

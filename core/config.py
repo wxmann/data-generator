@@ -21,20 +21,19 @@ class _DependencyTracker:
     def __init__(self):
         self.all_nodes = {}
 
-    def addroot(self, func_setting):
-        self.all_nodes[func_setting.column] = func_setting
+    def addroot(self, col, func_setting):
+        self.all_nodes[col] = func_setting
 
-    def setdependencies(self, func_setting, *dependencies):
-        if func_setting.column in self.all_nodes:
-            raise CircularDependencyError('Circular dependency found for column: {}'.format(func_setting.column))
+    def setdependencies(self, col, func_setting, *dependencies):
+        if col in self.all_nodes:
+            raise CircularDependencyError('Circular dependency found for column: {}'.format(col))
         for parent in dependencies:
             func_setting.priority = max(func_setting.priority, parent.priority + 1)
 
 
 class FunctionSetting:
 
-    def __init__(self, column, func, dependencies, *args, **kwargs):
-        self.column = column
+    def __init__(self, func, dependencies, *args, **kwargs):
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -68,8 +67,7 @@ class FunctionSetting:
 
     def __eq__(self, other):
         if isinstance(other, FunctionSetting):
-            return self.column == other.column \
-                and self.func == other.func \
+            return self.func == other.func \
                 and self.args == other.args \
                 and self.kwargs == other.kwargs \
                 and self.dependencies == other.dependencies \
@@ -97,17 +95,17 @@ class TabularConfig:
             return sorted(cols, key=prioritysortedkey)
         return cols
 
-    def _handle_dependency(self, setting):
+    def _handle_dependency(self, col, setting):
         dependencies = [self.col_setting_mapping[col_dependency] for col_dependency in setting.dependencies]
-        self.dependencies.setdependencies(setting, *dependencies)
+        self.dependencies.setdependencies(col, setting, *dependencies)
 
     def set_funcsetting(self, col, func, *args, dependencies=None, **kwargs):
-        setting_new = FunctionSetting(col, func, dependencies, *args, **kwargs)
+        setting_new = FunctionSetting(func, dependencies, *args, **kwargs)
         self.col_setting_mapping[col] = setting_new
         if dependencies is None:
-            self.dependencies.addroot(setting_new)
+            self.dependencies.addroot(col, setting_new)
         else:
-            self._handle_dependency(setting_new)
+            self._handle_dependency(col, setting_new)
 
     def get_funcsetting(self, col):
         if col not in self.col_setting_mapping:
