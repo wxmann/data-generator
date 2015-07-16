@@ -30,7 +30,7 @@ class _DependencyTracker:
         for parent in dependencies:
             func_setting.priority = max(func_setting.priority, parent.priority + 1)
 
-# TODO: test with generators instead of functions
+
 class FunctionSetting:
 
     def __init__(self, column, func, dependencies, *args, **kwargs):
