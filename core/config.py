@@ -1,5 +1,6 @@
 import inspect
 import functools
+from core import repeat, common
 
 __author__ = 'tangz'
 
@@ -33,11 +34,13 @@ class _DependencyTracker:
 
 class FunctionSetting:
 
-    def __init__(self, func, dependencies, *args, **kwargs):
+    def __init__(self, func, args=None, kwargs=None, dependencies=None, groupmode=None, groupcount=1):
         self.func = func
-        self.args = args
-        self.kwargs = kwargs
+        self.args = [] if args is None else args
+        self.kwargs = {} if kwargs is None else kwargs
         self.dependencies = dependencies
+        self.groupmode = groupmode
+        self.groupcount = groupcount
         self.priority = 1
         self.isgenerator = inspect.isgeneratorfunction(func)
         # either pre-generated or dynamically generated
@@ -54,16 +57,26 @@ class FunctionSetting:
         # TODO: figure out if this condition is needed
         #    if len(ext_args) + len(ext_kwargs) != len(self.dependencies):
         #     raise ConfigurationError("Number of args provided does not match number of dependencies!")
-        if self.isgenerator:
-            return next(self._data_returner)
-        else:
-            return self._data_returner(*ext_args, **ext_kwargs)
+        # TODO: test dependencies with groups
+        if self.groupmode is not None:
+            self._data_returner.ext_args = ext_args
+            self._data_returner.ext_kwargs = ext_kwargs
+        return common.extractvalue(self._data_returner, *ext_args, **ext_kwargs)
 
     def _preassemble_returner(self):
         if self.isgenerator:
-            self._data_returner = self.func(*self.args, **self.kwargs)
+            data_returner = self.func(*self.args, **self.kwargs)
         else:
-            self._data_returner = functools.partial(self.func, *self.args, **self.kwargs)
+            data_returner = functools.partial(self.func, *self.args, **self.kwargs)
+
+        if self.groupmode is None:
+            self._data_returner = data_returner
+        elif self.groupmode == 'single':
+            self._data_returner = repeat.repeatsingle(self.groupcount, data_returner)
+        elif self.groupmode == 'cluster':
+            self._data_returner = repeat.repeatcluster(self.groupcount, data_returner)
+        else:
+            raise ValueError('Invalid group mode: {0}'.format(self.groupmode))
 
     def __eq__(self, other):
         if isinstance(other, FunctionSetting):
@@ -71,6 +84,8 @@ class FunctionSetting:
                 and self.args == other.args \
                 and self.kwargs == other.kwargs \
                 and self.dependencies == other.dependencies \
+                and self.groupmode == other.groupmode \
+                and self.groupcount == other.groupcount \
                 and self.priority == other.priority
         else:
             return NotImplemented
@@ -99,8 +114,8 @@ class TabularConfig:
         dependencies = [self.col_setting_mapping[col_dependency] for col_dependency in setting.dependencies]
         self.dependencies.setdependencies(col, setting, *dependencies)
 
-    def set_funcsetting(self, col, func, *args, dependencies=None, **kwargs):
-        setting_new = FunctionSetting(func, dependencies, *args, **kwargs)
+    def set_funcsetting(self, col, func, args=None, kwargs=None, dependencies=None, groupmode=None, groupcount=1):
+        setting_new = FunctionSetting(func, args=args, kwargs=kwargs, dependencies=dependencies, groupmode=groupmode, groupcount=groupcount)
         self.col_setting_mapping[col] = setting_new
         if dependencies is None:
             self.dependencies.addroot(col, setting_new)

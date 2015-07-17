@@ -34,7 +34,7 @@ class OutputTest(unittest.TestCase):
 
     def test_output(self):
         config1 = config.TabularConfig()
-        config1.set_funcsetting('Contract_Reference', basic.counter, prefix='CR')
-        config1.set_funcsetting('Netting_Set', random.choice, ['A', 'B', 'C', 'D'])
+        config1.set_funcsetting('Contract_Reference', basic.counter, kwargs={'prefix': 'CR'})
+        config1.set_funcsetting('Netting_Set', random.choice, args=[['A', 'B', 'C', 'D']])
         config1.set_funcsetting('UID', lambda x, y: '{}-{}'.format(x, y), dependencies=['Contract_Reference', "Netting_Set"])
         output.to_csv('second_test.csv', config1, 109)

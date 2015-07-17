@@ -64,5 +64,5 @@ class XMLParser:
                 else:
                     kwargs[keyattr] = argtoadd
 
-            tabularconfig.set_funcsetting(columnname, func, *args, **kwargs)
+            tabularconfig.set_funcsetting(columnname, func, args=args, kwargs=kwargs)
         return tabularconfig

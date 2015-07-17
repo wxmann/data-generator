@@ -13,9 +13,9 @@ def incrementer(x):
 class RepeatTest(unittest.TestCase):
 
     def test_should_repeat_cluster(self):
-        funcsetting = config.FunctionSetting(incrementer, None, 3)
+        func = incrementer(3)
         count = 3
-        cluster = repeat.repeatcluster(count, funcsetting)
+        cluster = repeat.repeatcluster(count, func)
 
         self.assertEquals(next(cluster), 3)
         self.assertEquals(next(cluster), 4)
@@ -25,9 +25,9 @@ class RepeatTest(unittest.TestCase):
         self.assertEquals(next(cluster), 5)
 
     def test_should_repeat_single(self):
-        funcsetting = config.FunctionSetting(incrementer, None, 3)
+        func = incrementer(3)
         count = 3
-        repeater = repeat.repeatsingle(count, funcsetting)
+        repeater = repeat.repeatsingle(count, func)
 
         self.assertEquals(next(repeater), 3)
         self.assertEquals(next(repeater), 3)
