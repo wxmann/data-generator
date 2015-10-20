@@ -16,55 +16,55 @@ class WrapperTests(unittest.TestCase):
             self.assertEqual(funcwrapper.get(start, inc), start + i*inc)
 
     def test_basic_function_setting_for_generator_withkwarg(self):
-        funcsetting = FunctionWrapper(testdata.counter)
+        funcwrapper = FunctionWrapper(testdata.counter)
         start = 4
         inc = 2
         for i in range(10):
-            self.assertEqual(funcsetting.get(start=start, inc=inc), start + i*inc)
+            self.assertEqual(funcwrapper.get(start=start, inc=inc), start + i*inc)
 
     def test_basic_function_setting_for_generator_withnone(self):
-        funcsetting = FunctionWrapper(testdata.counter_none)
+        funcwrapper = FunctionWrapper(testdata.counter_none)
         for i in range(10):
-            self.assertEqual(funcsetting.get(), i)
+            self.assertEqual(funcwrapper.get(), i)
 
     def test_basic_function_setting_for_generator_withboth(self):
-        funcsetting = FunctionWrapper(testdata.counter)
+        funcwrapper = FunctionWrapper(testdata.counter)
         start = 4
         inc = 2
         for i in range(10):
-            self.assertEqual(funcsetting.get(start, inc=inc), start + i*inc)
+            self.assertEqual(funcwrapper.get(start, inc=inc), start + i*inc)
 
     def test_basic_function_setting_for_function_witharg(self):
-        funcsetting = FunctionWrapper(testdata.mult)
-        self.assertEqual(funcsetting.get(4, 2), 8)
+        funcwrapper = FunctionWrapper(testdata.mult)
+        self.assertEqual(funcwrapper.get(4, 2), 8)
 
     def test_basic_function_setting_for_function_withkwarg(self):
-        funcsetting = FunctionWrapper(testdata.mult)
+        funcwrapper = FunctionWrapper(testdata.mult)
         a = 4
         b = 2
-        self.assertEqual(funcsetting.get(a=a, b=b), 8)
+        self.assertEqual(funcwrapper.get(a=a, b=b), 8)
 
     def test_basic_function_setting_for_function_withnone(self):
-        funcsetting = FunctionWrapper(testdata.mult_none)
-        self.assertEqual(funcsetting.get(), 8)
+        funcwrapper = FunctionWrapper(testdata.mult_none)
+        self.assertEqual(funcwrapper.get(), 8)
 
     def test_basic_function_setting_for_function_withboth(self):
-        funcsetting = FunctionWrapper(testdata.mult)
+        funcwrapper = FunctionWrapper(testdata.mult)
         a = 4
         b = 2
-        self.assertEqual(funcsetting.get(a, b=b), 8)
+        self.assertEqual(funcwrapper.get(a, b=b), 8)
 
     def test_single_repeater(self):
-        funcsetting = FunctionWrapper(testdata.counter)
-        repeated = SingleRepeater(funcsetting, 4)
+        funcwrapper = FunctionWrapper(testdata.counter)
+        repeated = SingleRepeater(funcwrapper, 4)
         start = 4
         inc = 2
         values = [repeated.get(start, inc) for i in range(10)]
         self.assertEqual(values, [4, 4, 4, 4, 6, 6, 6, 6, 8, 8])
 
     def test_cluster_repeater(self):
-        funcsetting = FunctionWrapper(testdata.counter)
-        repeated = ClusterRepeater(funcsetting, 4)
+        funcwrapper = FunctionWrapper(testdata.counter)
+        repeated = ClusterRepeater(funcwrapper, 4)
         start = 4
         inc = 2
         values = [repeated.get(start, inc) for i in range(10)]
