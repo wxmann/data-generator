@@ -9,6 +9,9 @@ class TabularConfig(object):
         self._map[column] = funcnode
         funcnode.set_nodemap(self)
 
+    def columns(self):
+        return self._map.keys()
+
     def get(self, column):
         return self._map[column]
 

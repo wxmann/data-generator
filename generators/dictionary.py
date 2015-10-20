@@ -1,6 +1,5 @@
 import random
 import itertools
-from generators import basic
 
 __author__ = 'tangz'
 
