@@ -25,15 +25,15 @@ class Dependency(object):
 
 class FunctionNode(object):
     def __init__(self, funcwrapper, args=None, kwargs=None, dependencies=None):
-        self.funcsetting = funcwrapper
+        self.funcwrapper = funcwrapper
         self.dependencies = dependencies
-        self.col_funcnode_map = {}
+        self.col_funcnode_map = None
         self.own_args = [] if args is None else args
         self.own_kwargs = {} if kwargs is None else kwargs
         self.saved_value = None
 
-    def set_nodemap(self, col_funcnode_map):
-        self.col_funcnode_map = col_funcnode_map
+    def set_nodemap(self, tabularconfig):
+        self.col_funcnode_map = tabularconfig
 
     def resetstate(self):
         self.saved_value = None
@@ -54,7 +54,7 @@ class FunctionNode(object):
             new_kwargs = self.own_kwargs
             new_args = self.own_args
 
-        return self.funcsetting.get(*new_args, **new_kwargs)
+        return self.funcwrapper.get(*new_args, **new_kwargs)
 
     def _args_from_dependencies(self, dependencies):
         newargs = []
