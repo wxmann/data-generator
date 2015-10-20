@@ -24,8 +24,8 @@ class Dependency(object):
 
 
 class FunctionNode(object):
-    def __init__(self, funcsetting, args=None, kwargs=None, dependencies=None):
-        self.funcsetting = funcsetting
+    def __init__(self, funcwrapper, args=None, kwargs=None, dependencies=None):
+        self.funcsetting = funcwrapper
         self.dependencies = dependencies
         self.col_funcnode_map = {}
         self.own_args = [] if args is None else args

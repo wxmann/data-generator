@@ -1,6 +1,6 @@
 import unittest
 from config import TabularConfig, FunctionNode, Dependency
-from settings import FunctionSetting
+from wrapper import FunctionWrapper
 from tests import testdata
 
 __author__ = 'tangz'
@@ -9,9 +9,9 @@ class ConfigTests(unittest.TestCase):
 
     def test_config_without_dependencies(self):
         conf = TabularConfig()
-        nodeAA = FunctionNode(FunctionSetting(testdata.mult), kwargs={'a':1, 'b':2})
-        nodeBB = FunctionNode(FunctionSetting(testdata.counter), kwargs={'start':2, 'inc':1})
-        nodeCC = FunctionNode(FunctionSetting(testdata.mult), args=[3, 4])
+        nodeAA = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'a':1, 'b':2})
+        nodeBB = FunctionNode(FunctionWrapper(testdata.counter), kwargs={'start':2, 'inc':1})
+        nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
         conf.set("AA", nodeAA)
         conf.set("BB", nodeBB)
         conf.set("CC", nodeCC)
@@ -26,9 +26,9 @@ class ConfigTests(unittest.TestCase):
 
         dependencyBB = Dependency('BB')
         dependencyCC = Dependency('CC')
-        nodeAA = FunctionNode(FunctionSetting(testdata.mult), dependencies=[dependencyBB, dependencyCC])
-        nodeBB = FunctionNode(FunctionSetting(testdata.mult), args=[1, 2])
-        nodeCC = FunctionNode(FunctionSetting(testdata.mult), args=[3, 4])
+        nodeAA = FunctionNode(FunctionWrapper(testdata.mult), dependencies=[dependencyBB, dependencyCC])
+        nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
+        nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
         conf.set("AA", nodeAA)
         conf.set("BB", nodeBB)
         conf.set("CC", nodeCC)
@@ -43,9 +43,9 @@ class ConfigTests(unittest.TestCase):
 
         dependencyBB = Dependency('BB', 'inc')
         dependencyCC = Dependency('CC', 'start')
-        nodeAA = FunctionNode(FunctionSetting(testdata.counter), dependencies=[dependencyBB, dependencyCC])
-        nodeBB = FunctionNode(FunctionSetting(testdata.mult), args=[1, 2])
-        nodeCC = FunctionNode(FunctionSetting(testdata.mult), args=[3, 4])
+        nodeAA = FunctionNode(FunctionWrapper(testdata.counter), dependencies=[dependencyBB, dependencyCC])
+        nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
+        nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
         conf.set("AA", nodeAA)
         conf.set("BB", nodeBB)
         conf.set("CC", nodeCC)
@@ -61,9 +61,9 @@ class ConfigTests(unittest.TestCase):
 
         dependencyBB = Dependency('BB')
         dependencyCC = Dependency('CC', 'inc')
-        nodeAA = FunctionNode(FunctionSetting(testdata.counter), dependencies=[dependencyBB, dependencyCC])
-        nodeBB = FunctionNode(FunctionSetting(testdata.mult), args=[1, 2])
-        nodeCC = FunctionNode(FunctionSetting(testdata.mult), args=[3, 4])
+        nodeAA = FunctionNode(FunctionWrapper(testdata.counter), dependencies=[dependencyBB, dependencyCC])
+        nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
+        nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
         conf.set("AA", nodeAA)
         conf.set("BB", nodeBB)
         conf.set("CC", nodeCC)
@@ -78,9 +78,9 @@ class ConfigTests(unittest.TestCase):
         conf = TabularConfig()
 
         dependencyBB = Dependency('BB', 'a')
-        nodeAA = FunctionNode(FunctionSetting(testdata.mult), kwargs={'b':2}, dependencies=[dependencyBB])
-        nodeBB = FunctionNode(FunctionSetting(testdata.mult), args=[1, 2])
-        nodeCC = FunctionNode(FunctionSetting(testdata.mult), args=[3, 4])
+        nodeAA = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'b':2}, dependencies=[dependencyBB])
+        nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
+        nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
         conf.set("AA", nodeAA)
         conf.set("BB", nodeBB)
         conf.set("CC", nodeCC)

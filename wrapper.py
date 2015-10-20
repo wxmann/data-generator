@@ -3,7 +3,7 @@ import inspect
 __author__ = 'tangz'
 
 
-class FunctionSetting(object):
+class FunctionWrapper(object):
     def __init__(self, func):
         self.func = func
         self._isgenerator = inspect.isgeneratorfunction(func)
