@@ -24,7 +24,7 @@ class CSVWriter(object):
             writer = csv.DictWriter(opened_file, columns)
             writer.writeheader()
             for i in range(n):
-                row = {column: self.tabularconfig.get(column).getvalue() for column in columns}
+                row = {column: self.tabularconfig.nodefor(column).getvalue() for column in columns}
                 self.tabularconfig.resetall()
                 writer.writerow(row)
 

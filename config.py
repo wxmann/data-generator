@@ -5,14 +5,14 @@ class TabularConfig(object):
     def __init__(self):
         self._map = {}
 
-    def set(self, column, funcnode):
+    def setnode(self, column, funcnode):
         self._map[column] = funcnode
         funcnode.set_nodemap(self)
 
     def columns(self):
         return self._map.keys()
 
-    def get(self, column):
+    def nodefor(self, column):
         return self._map[column]
 
     def resetall(self):
@@ -62,7 +62,7 @@ class FunctionNode(object):
         if dependencies: # Non-empty and non-null dependencies
             for dependency in dependencies:
                 column = dependency.column
-                funcnode = self.col_funcnode_map.get(column)
+                funcnode = self.col_funcnode_map.nodefor(column)
                 newargs.append(funcnode.getvalue())
         return newargs
 
@@ -73,6 +73,6 @@ class FunctionNode(object):
             for dependency in dependencies:
                 argname = dependency.arg
                 column = dependency.column
-                funcnode = self.col_funcnode_map.get(column)
+                funcnode = self.col_funcnode_map.nodefor(column)
                 newkwargs[argname] = funcnode.getvalue()
         return newkwargs

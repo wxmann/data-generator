@@ -12,14 +12,14 @@ class ConfigTests(unittest.TestCase):
         nodeAA = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'a':1, 'b':2})
         nodeBB = FunctionNode(FunctionWrapper(testdata.counter), kwargs={'start':2, 'inc':1})
         nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
-        conf.set("AA", nodeAA)
-        conf.set("BB", nodeBB)
-        conf.set("CC", nodeCC)
+        conf.setnode("AA", nodeAA)
+        conf.setnode("BB", nodeBB)
+        conf.setnode("CC", nodeCC)
 
         for i in range(5):
-            self.assertEqual(conf.get("AA").getvalue(), 2)
-            self.assertEqual(conf.get("BB").getvalue(), i+2)
-            self.assertEqual(conf.get("CC").getvalue(), 12)
+            self.assertEqual(conf.nodefor("AA").getvalue(), 2)
+            self.assertEqual(conf.nodefor("BB").getvalue(), i+2)
+            self.assertEqual(conf.nodefor("CC").getvalue(), 12)
             conf.resetall()
 
     def test_config_with_arg_dependencies_all(self):
@@ -30,14 +30,15 @@ class ConfigTests(unittest.TestCase):
         nodeAA = FunctionNode(FunctionWrapper(testdata.mult), dependencies=[dependencyBB, dependencyCC])
         nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
         nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
-        conf.set("AA", nodeAA)
-        conf.set("BB", nodeBB)
-        conf.set("CC", nodeCC)
+        conf.setnode("AA", nodeAA)
+        conf.setnode("BB", nodeBB)
+        conf.setnode("CC", nodeCC)
 
         for i in range(5):
-            self.assertEqual(conf.get("AA").getvalue(), 24)
-            self.assertEqual(conf.get("BB").getvalue(), 2)
-            self.assertEqual(conf.get("CC").getvalue(), 12)
+            self.assertEqual(conf.nodefor("AA").getvalue(), 24)
+            self.assertEqual(conf.nodefor("BB").getvalue(), 2)
+            self.assertEqual(conf.nodefor("CC").getvalue(), 12)
+            conf.resetall()
 
     def test_config_with_kwarg_dependencies_all(self):
         conf = TabularConfig()
@@ -47,14 +48,14 @@ class ConfigTests(unittest.TestCase):
         nodeAA = FunctionNode(FunctionWrapper(testdata.counter), dependencies=[dependencyBB, dependencyCC])
         nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
         nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
-        conf.set("AA", nodeAA)
-        conf.set("BB", nodeBB)
-        conf.set("CC", nodeCC)
+        conf.setnode("AA", nodeAA)
+        conf.setnode("BB", nodeBB)
+        conf.setnode("CC", nodeCC)
 
         for i in range(5):
-            self.assertEqual(conf.get("AA").getvalue(), 2*i + 12)
-            self.assertEqual(conf.get("BB").getvalue(), 2)
-            self.assertEqual(conf.get("CC").getvalue(), 12)
+            self.assertEqual(conf.nodefor("AA").getvalue(), 2*i + 12)
+            self.assertEqual(conf.nodefor("BB").getvalue(), 2)
+            self.assertEqual(conf.nodefor("CC").getvalue(), 12)
             conf.resetall()
 
     # Note: a corner case. Almost all cases, users are recommended to not mix args & kwargs.
@@ -66,14 +67,14 @@ class ConfigTests(unittest.TestCase):
         nodeAA = FunctionNode(FunctionWrapper(testdata.counter), dependencies=[dependencyBB, dependencyCC])
         nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
         nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
-        conf.set("AA", nodeAA)
-        conf.set("BB", nodeBB)
-        conf.set("CC", nodeCC)
+        conf.setnode("AA", nodeAA)
+        conf.setnode("BB", nodeBB)
+        conf.setnode("CC", nodeCC)
 
         for i in range(5):
-            self.assertEqual(conf.get("AA").getvalue(), 12*i + 2)
-            self.assertEqual(conf.get("BB").getvalue(), 2)
-            self.assertEqual(conf.get("CC").getvalue(), 12)
+            self.assertEqual(conf.nodefor("AA").getvalue(), 12*i + 2)
+            self.assertEqual(conf.nodefor("BB").getvalue(), 2)
+            self.assertEqual(conf.nodefor("CC").getvalue(), 12)
             conf.resetall()
 
     # We recommend users to always use kwargs when dealing with mixed pure and dependent arguments.
@@ -84,14 +85,15 @@ class ConfigTests(unittest.TestCase):
         nodeAA = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'b':2}, dependencies=[dependencyBB])
         nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
         nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
-        conf.set("AA", nodeAA)
-        conf.set("BB", nodeBB)
-        conf.set("CC", nodeCC)
+        conf.setnode("AA", nodeAA)
+        conf.setnode("BB", nodeBB)
+        conf.setnode("CC", nodeCC)
 
         for i in range(5):
-            self.assertEqual(conf.get("AA").getvalue(), 4)
-            self.assertEqual(conf.get("BB").getvalue(), 2)
-            self.assertEqual(conf.get("CC").getvalue(), 12)
+            self.assertEqual(conf.nodefor("AA").getvalue(), 4)
+            self.assertEqual(conf.nodefor("BB").getvalue(), 2)
+            self.assertEqual(conf.nodefor("CC").getvalue(), 12)
+            conf.resetall()
 
     # TODO: (1) test reset; (2) test A -> B; A -> C; B -> C
     # TODO implement: check circular dependency

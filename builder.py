@@ -94,7 +94,7 @@ class ColumnSettingBuilder(object):
             raise ValueError("Function cannot be empty!")
 
         self.root_builder.tabularconfig\
-            .set(self.column,
+            .setnode(self.column,
                  FunctionNode(_to_wrapper(self.func, self.repeater), self.args, self.kwargs, self.dependencies))
 
 

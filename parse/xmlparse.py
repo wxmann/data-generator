@@ -66,5 +66,5 @@ class XMLParser:
                 else:
                     kwargs[keyattr] = argtoadd
 
-            tabularconfig.set(columnname, config.FunctionNode(FunctionWrapper(func), args=args, kwargs=kwargs))
+            tabularconfig.setnode(columnname, config.FunctionNode(FunctionWrapper(func), args=args, kwargs=kwargs))
         return tabularconfig
