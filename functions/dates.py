@@ -45,6 +45,8 @@ def _endday(month, year):
 def quarters_iter(startdate=None, usemonthends=True, dateformat=DEFAULT_DATEFORMAT):
     begin_date = datetime.now() if startdate is None else datetime.datetime.strptime(startdate, dateformat).date()
     if usemonthends:
-        return enddate_iter(begin_date.month, begin_date.year, month_inc=3, dateformat=dateformat)
+        iter = enddate_iter(begin_date.month, begin_date.year, month_inc=3, dateformat=dateformat)
     else:
-        return begindate_iter(begin_date.month, begin_date.year, month_inc=3, dateformat=dateformat)
+        iter = begindate_iter(begin_date.month, begin_date.year, month_inc=3, dateformat=dateformat)
+    while True:
+        yield next(iter)

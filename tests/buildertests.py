@@ -44,19 +44,24 @@ class ConfigBuilderTest(unittest.TestCase):
 
         builder.newglobalsetting().userepeater(bldr.REPEATER_SINGLE, clustersize).build()
 
-        # builder.newcolumn('Date').usefunc(dates.quarterlyiter).usekwargs(startdate='01/01/2015')\
-        #     .userepeater(bldr.REPEATER_CLUSTER, clustersize).build()
+        builder.newcolumn('Date').usefunc(dates.quarters_iter).usekwargs(startdate='03/31/2015')\
+            .userepeater(bldr.REPEATER_CLUSTER, clustersize).build()
         builder.newcolumn('Reference Id').usefunc(basic.counter).usekwargs(prefix='Ref', sep='_').build()
-        builder.newcolumn('Ending Balance').usefunc(random.randint).useargs(50000, 60000).build()
+        builder.newcolumn('Ending Balance').usefunc(random.randint)\
+            .useargs(50000, 60000)\
+            .norepeater().build()
         builder.newcolumn('Total Exposure').usefunc(self._total_exposure_func)\
             .add_named_dependency('Ending Balance', 'ending_bal')\
-            .add_named_dependency('Revolving (Y or N)', 'revolving').build()
+            .add_named_dependency('Revolving (Y or N)', 'revolving')\
+            .norepeater().build()
         builder.newcolumn('Performing (Y or N)').usefunc(random.choice).useargs(['Y', 'N']).build()
         builder.newcolumn('Revolving (Y or N)').usefunc(random.choice).useargs(['Y', 'N']).build()
         builder.newcolumn('Average Recovery Years').usefunc(random.randint).useargs(1, 9).build()
-        builder.newcolumn('Effective Interest Rate').usefunc(random.uniform).useargs(5, 9).build()
-        builder.newcolumn('LGD Effective rate').usefunc(random.uniform).useargs(1, 2).build()
+        builder.newcolumn('Effective Interest Rate').usefunc(random.uniform).useargs(5, 9)\
+            .norepeater().build()
+        builder.newcolumn('LGD Effective rate').usefunc(random.uniform).useargs(1, 2)\
+            .norepeater().build()
 
         config = builder.output_config()
-        writer.write_csv("../resources/ECL-1mil-30quarters.csv", config, clustersize * num_contractrefs)
+        writer.write_csv("../resources/ECL-100-30quarters.csv", config, clustersize * num_contractrefs)
 
