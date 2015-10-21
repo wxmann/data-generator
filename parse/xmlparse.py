@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 import config
-from generators import dictionary
+from functions import dictionary
 from wrapper import FunctionWrapper
 
 __author__ = 'tangz'
