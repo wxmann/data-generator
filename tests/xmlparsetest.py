@@ -11,4 +11,4 @@ class XMLParseTest(unittest.TestCase):
         file_in = "../resources/Sample.xml"
         file_out = "../resources/Hope.csv"
         # config = xmlparse.parsexml(file)
-        writer.write_csv(file_out, file_in, 10)
+        writer.write_csv_from_xml_config(file_out, file_in, 10)

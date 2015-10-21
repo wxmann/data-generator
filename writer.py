@@ -3,8 +3,12 @@ from parse import xmlparse
 
 __author__ = 'tangz'
 
+def write_csv(file, config, n):
+    thewriter = CSVWriter(config)
+    thewriter.write(file, n)
 
-def write_csv(file_out, xmlconfig_in, n):
+
+def write_csv_from_xml_config(file_out, xmlconfig_in, n):
     tabularconfig = xmlparse.parsexml(xmlconfig_in)
     writer = CSVWriter(tabularconfig)
     writer.write(file_out, n)

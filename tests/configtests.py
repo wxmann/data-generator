@@ -20,6 +20,7 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual(conf.get("AA").getvalue(), 2)
             self.assertEqual(conf.get("BB").getvalue(), i+2)
             self.assertEqual(conf.get("CC").getvalue(), 12)
+            conf.resetall()
 
     def test_config_with_arg_dependencies_all(self):
         conf = TabularConfig()
@@ -54,6 +55,7 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual(conf.get("AA").getvalue(), 2*i + 12)
             self.assertEqual(conf.get("BB").getvalue(), 2)
             self.assertEqual(conf.get("CC").getvalue(), 12)
+            conf.resetall()
 
     # Note: a corner case. Almost all cases, users are recommended to not mix args & kwargs.
     def test_config_with_mixed_dependencies_all(self):
@@ -72,6 +74,7 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual(conf.get("AA").getvalue(), 12*i + 2)
             self.assertEqual(conf.get("BB").getvalue(), 2)
             self.assertEqual(conf.get("CC").getvalue(), 12)
+            conf.resetall()
 
     # We recommend users to always use kwargs when dealing with mixed pure and dependent arguments.
     def test_config_with_arg_dependencies_some(self):

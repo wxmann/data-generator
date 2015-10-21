@@ -42,22 +42,20 @@ class FunctionNode(object):
         self.saved_value = None
 
     def getvalue(self):
-        if self.saved_value is not None:
-            return self.saved_value
+        if self.saved_value is None:
+            if self.dependencies:
+                dependencies_kwargs = [kw for kw in self.dependencies if kw.arg is not None]
+                new_kwargs = dict(self.own_kwargs)
+                new_kwargs.update(self._kwargs_from_dependencies(dependencies_kwargs))
 
-        if self.dependencies is not None:
-            dependencies_kwargs = [kw for kw in self.dependencies if kw.arg is not None]
-            new_kwargs = dict(self.own_kwargs)
-            new_kwargs.update(self._kwargs_from_dependencies(dependencies_kwargs))
-
-            dependencies_args = [kw for kw in self.dependencies if kw.arg is None]
-            new_args = list(self.own_args)
-            new_args = new_args + self._args_from_dependencies(dependencies_args)
-        else:
-            new_kwargs = self.own_kwargs
-            new_args = self.own_args
-
-        return self.funcwrapper.get(*new_args, **new_kwargs)
+                dependencies_args = [kw for kw in self.dependencies if kw.arg is None]
+                new_args = list(self.own_args)
+                new_args = new_args + self._args_from_dependencies(dependencies_args)
+            else:
+                new_kwargs = self.own_kwargs
+                new_args = self.own_args
+            self.saved_value = self.funcwrapper.get(*new_args, **new_kwargs)
+        return self.saved_value
 
     def _args_from_dependencies(self, dependencies):
         newargs = []
