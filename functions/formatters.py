@@ -7,11 +7,11 @@ def dateformatter(dateformat):
 
 
 def prepend(pre):
-    return lambda x: pre + x
+    return lambda x: str(pre) + str(x)
 
 
 def postpend(post):
-    return lambda x: x + post
+    return lambda x: str(x) + str(post)
 
 
 def nround(precision):

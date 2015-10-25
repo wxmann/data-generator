@@ -1,9 +1,9 @@
 import random
 import unittest
-from functions import basic
+import itertools
+from functions import basic, dates, formatters
 import writer
 import builder as bldr
-from functions import dates
 
 __author__ = 'tangz'
 
@@ -44,9 +44,11 @@ class ConfigBuilderTest(unittest.TestCase):
 
         builder.newglobalsetting().userepeater(bldr.REPEATER_SINGLE, clustersize).build()
 
-        builder.newcolumn('Date').usefunc(dates.quarters_iter).usekwargs(startdate='03/31/2015')\
-            .userepeater(bldr.REPEATER_CLUSTER, clustersize).build()
-        builder.newcolumn('Reference Id').usefunc(basic.counter).usekwargs(prefix='Ref', sep='_').build()
+        builder.newcolumn('Date').usefunc(dates.quarters_iter).usekwargs(startyear=2015, startmonth=3)\
+            .userepeater(bldr.REPEATER_CLUSTER, clustersize)\
+            .useformatter(formatters.dateformatter("%m/%d/%Y")).build()
+        builder.newcolumn('Reference Id').usefunc(itertools.count).usekwargs(start=1)\
+            .useformatter(formatters.prepend('Ref_')).build()
         builder.newcolumn('Ending Balance').usefunc(random.randint)\
             .useargs(50000, 60000)\
             .norepeater().build()
@@ -58,9 +60,10 @@ class ConfigBuilderTest(unittest.TestCase):
         builder.newcolumn('Revolving (Y or N)').usefunc(random.choice).useargs(['Y', 'N']).build()
         builder.newcolumn('Average Recovery Years').usefunc(random.randint).useargs(1, 9).build()
         builder.newcolumn('Effective Interest Rate').usefunc(random.uniform).useargs(5, 9)\
-            .norepeater().build()
+            .userepeater(bldr.REPEATER_CLUSTER, clustersize)\
+            .useformatter(formatters.nround(3)).build()
         builder.newcolumn('LGD Effective rate').usefunc(random.uniform).useargs(1, 2)\
-            .norepeater().build()
+            .norepeater().useformatter(formatters.nround(3)).build()
 
         config = builder.output_config()
         writer.write_csv("../resources/ECL-100-30quarters.csv", config, clustersize * num_contractrefs)

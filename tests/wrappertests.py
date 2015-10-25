@@ -8,51 +8,59 @@ __author__ = 'tangz'
 
 class WrapperTests(unittest.TestCase):
 
-    def test_basic_function_setting_for_generator_witharg(self):
+    def test_function_wrapper_for_generator_witharg(self):
         funcwrapper = FunctionWrapper(testdata.counter)
         start = 4
         inc = 2
         for i in range(10):
             self.assertEqual(funcwrapper.get(start, inc), start + i*inc)
 
-    def test_basic_function_setting_for_generator_withkwarg(self):
+    def test_function_wrapper_for_generator_withkwarg(self):
         funcwrapper = FunctionWrapper(testdata.counter)
         start = 4
         inc = 2
         for i in range(10):
             self.assertEqual(funcwrapper.get(start=start, inc=inc), start + i*inc)
 
-    def test_basic_function_setting_for_generator_withnone(self):
+    def test_function_wrapper_for_generator_withnone(self):
         funcwrapper = FunctionWrapper(testdata.counter_none)
         for i in range(10):
             self.assertEqual(funcwrapper.get(), i)
 
-    def test_basic_function_setting_for_generator_withboth(self):
+    def test_function_wrapper_for_generator_withboth(self):
         funcwrapper = FunctionWrapper(testdata.counter)
         start = 4
         inc = 2
         for i in range(10):
             self.assertEqual(funcwrapper.get(start, inc=inc), start + i*inc)
 
-    def test_basic_function_setting_for_function_witharg(self):
+    def test_function_wrapper_for_function_witharg(self):
         funcwrapper = FunctionWrapper(testdata.mult)
         self.assertEqual(funcwrapper.get(4, 2), 8)
 
-    def test_basic_function_setting_for_function_withkwarg(self):
+    def test_function_wrapper_for_function_withkwarg(self):
         funcwrapper = FunctionWrapper(testdata.mult)
         a = 4
         b = 2
         self.assertEqual(funcwrapper.get(a=a, b=b), 8)
 
-    def test_basic_function_setting_for_function_withnone(self):
+    def test_function_wrapper_for_function_withnone(self):
         funcwrapper = FunctionWrapper(testdata.mult_none)
         self.assertEqual(funcwrapper.get(), 8)
 
-    def test_basic_function_setting_for_function_withboth(self):
+    def test_function_wrapper_for_function_withboth(self):
         funcwrapper = FunctionWrapper(testdata.mult)
         a = 4
         b = 2
         self.assertEqual(funcwrapper.get(a, b=b), 8)
+        
+    def test_function_setting_for_iterable(self):
+        funcwrapper = FunctionWrapper(testdata.CountingIterable)
+        start = 4
+        inc = 2
+        self.assertEqual(funcwrapper.get(start=start, inc=inc), 4)
+        self.assertEqual(funcwrapper.get(start=start, inc=inc), 6)
+        self.assertEqual(funcwrapper.get(start=start, inc=inc), 8)
 
     def test_single_repeater(self):
         funcwrapper = FunctionWrapper(testdata.counter)

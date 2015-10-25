@@ -17,3 +17,17 @@ def mult(a, b):
 
 def mult_none():
     return mult(4, 2)
+
+
+class CountingIterable(object):
+    def __init__(self, start=0, inc=1):
+        self.num = start
+        self.inc = inc
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        num_to_return = self.num
+        self.num += self.inc
+        return num_to_return

@@ -41,10 +41,20 @@ class FormatterTests(unittest.TestCase):
         prefix = 'The-'
         self.assertEqual(formatters.prepend(prefix)(x), 'The-Test')
 
+    def test_prepend_to_number(self):
+        x = 1
+        prefix = 'The-'
+        self.assertEqual(formatters.prepend(prefix)(x), 'The-1')
+
     def test_postpend_to_str(self):
         x = 'The'
         post = '_Test'
         self.assertEqual(formatters.postpend(post)(x), 'The_Test')
+
+    def test_postpend_to_number(self):
+        x = 1
+        postfix = '-A'
+        self.assertEqual(formatters.postpend(postfix)(x), '1-A')
 
     def test_timeformatter_on_date(self):
         thedate = datetime.date(2015, 9, 24)

@@ -6,14 +6,15 @@ __author__ = 'tangz'
 class FunctionWrapper(object):
     def __init__(self, func):
         self.func = func
-        self._isgenerator = inspect.isgeneratorfunction(func)
-        self.generator = None
+        # this will allow it to handle both generators and iterators
+        self._iterable = inspect.isgeneratorfunction(func) or hasattr(func, '__iter__')
+        self._iterator = None
 
     def get(self, *args, **kwargs):
-        if self._isgenerator:
-            if self.generator is None:
-                self.generator = self.func(*args, **kwargs)
-            return next(self.generator)
+        if self._iterable:
+            if self._iterator is None:
+                self._iterator = self.func(*args, **kwargs)
+            return next(self._iterator)
         else:
             return self.func(*args, **kwargs)
 
