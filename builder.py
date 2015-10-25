@@ -1,5 +1,5 @@
 from config import Dependency, FunctionNode, TabularConfig
-from wrapper import FunctionWrapper, ClusterRepeater, SingleRepeater
+from wrapper import FunctionWrapper, ClusterRepeater, SingleRepeater, FormatWrapper
 
 __author__ = 'tangz'
 
@@ -7,8 +7,11 @@ REPEATER_SINGLE = 'single'
 REPEATER_CLUSTER = 'cluster'
 
 
-def _to_wrapper(func, repeater=None):
+def _to_wrapper(func, repeater=None, formatter=None):
     wrapper = FunctionWrapper(func)
+    if formatter is not None:
+        wrapper = FormatWrapper(wrapper, formatter)
+
     if repeater is None:
         return wrapper
     elif repeater.repeatername == REPEATER_SINGLE:
@@ -56,6 +59,7 @@ class ColumnSettingBuilder(object):
         self.root_builder = root_builder
         self.globalsetting = root_builder.globalsetting
         self.repeater = None if self.globalsetting is None else self.globalsetting.repeater
+        self.formatter = None
 
     def usefunc(self, func):
         self.func = func
@@ -74,8 +78,6 @@ class ColumnSettingBuilder(object):
         return self
 
     def add_named_dependency(self, column_dep, argname):
-        # if argname not in self.kwargs:
-        #     raise ValueError("No argname: {0} found in keywords set".format(argname))
         self.dependencies.append(Dependency(column_dep, argname))
         return self
 
@@ -87,6 +89,10 @@ class ColumnSettingBuilder(object):
         self.repeater = _RepeaterRepr(repeater_name, n)
         return self
 
+    def useformatter(self, formatter):
+        self.formatter = formatter
+        return self
+
     def build(self):
         if self.column is None or self.column == "":
             raise ValueError("Column cannot be empty!")
@@ -95,7 +101,8 @@ class ColumnSettingBuilder(object):
 
         self.root_builder.tabularconfig\
             .setnode(self.column,
-                 FunctionNode(_to_wrapper(self.func, self.repeater), self.args, self.kwargs, self.dependencies))
+                     FunctionNode(_to_wrapper(self.func, self.repeater, self.formatter),
+                                  self.args, self.kwargs, self.dependencies))
 
 
 # All config builder must have a globalsetting attribute, otherwise, this breaks above classes which reference

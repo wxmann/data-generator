@@ -18,6 +18,16 @@ class FunctionWrapper(object):
             return self.func(*args, **kwargs)
 
 
+class FormatWrapper(object):
+    def __init__(self, funcwrapper, formatter):
+        self.funcwrapper = funcwrapper
+        self.formatter = formatter
+
+    def get(self, *args, **kwargs):
+        value = self.funcwrapper.get(*args, **kwargs)
+        return self.formatter(value)
+
+
 class SingleRepeater(object):
     def __init__(self, funcwrapper, n):
         if n <= 0:
