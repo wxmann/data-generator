@@ -82,7 +82,7 @@ class ConfigTests(unittest.TestCase):
         conf = TabularConfig()
 
         dependencyBB = Dependency('BB', 'a')
-        nodeAA = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'b':2}, dependencies=[dependencyBB])
+        nodeAA = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'b': 2}, dependencies=[dependencyBB])
         nodeBB = FunctionNode(FunctionWrapper(testdata.mult), args=[1, 2])
         nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[3, 4])
         conf.setnode("AA", nodeAA)
@@ -95,5 +95,34 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual(conf.nodefor("CC").getvalue(), 12)
             conf.resetall()
 
-    # TODO: (1) test reset; (2) test A -> B; A -> C; B -> C
+
+    # dependency of A -> B; A -> C; B -> C
+    def test_config_with_graph_dependency(self):
+        conf = TabularConfig()
+        # Column AA
+        # A -> B dependency
+        dependencyBB_forAA = Dependency('BB', 'a')
+        # A -> C dependency
+        dependencyCC_forAA = Dependency('CC', 'b')
+        nodeAA = FunctionNode(FunctionWrapper(testdata.mult), dependencies=[dependencyBB_forAA, dependencyCC_forAA])
+
+        # Column BB
+        dependencyCC_forBB = Dependency('CC', 'b')
+        nodeBB = FunctionNode(FunctionWrapper(testdata.mult), kwargs={'a': 2}, dependencies=[dependencyCC_forAA])
+
+        # Column CC
+        nodeCC = FunctionNode(FunctionWrapper(testdata.mult), args=[5, 2])
+
+        # add all nodes into tabular config
+        conf.setnode("AA", nodeAA)
+        conf.setnode("BB", nodeBB)
+        conf.setnode("CC", nodeCC)
+
+        self.assertEqual(conf.nodefor("AA").getvalue(), 200)
+        self.assertEqual(conf.nodefor("BB").getvalue(), 20)
+        self.assertEqual(conf.nodefor("CC").getvalue(), 10)
+        conf.resetall()
+
+    # TODO: add tests around Repeater nodes and Formatter nodes
     # TODO implement: check circular dependency
+    # TODO: add real builder tests.

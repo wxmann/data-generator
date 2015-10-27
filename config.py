@@ -1,9 +1,11 @@
+import collections
+
 __author__ = 'tangz'
 
 
 class TabularConfig(object):
     def __init__(self):
-        self._map = {}
+        self._map = collections.OrderedDict()
 
     def setnode(self, column, funcnode):
         self._map[column] = funcnode
@@ -33,16 +35,18 @@ class FunctionNode(object):
         self.col_funcnode_map = None
         self.own_args = [] if args is None else args
         self.own_kwargs = {} if kwargs is None else kwargs
-        self.saved_value = None
+        self._saved_value = None
+        self._traversed = False
 
     def set_nodemap(self, tabularconfig):
         self.col_funcnode_map = tabularconfig
 
     def resetstate(self):
-        self.saved_value = None
+        self._saved_value = None
+        self._traversed = False
 
     def getvalue(self):
-        if self.saved_value is None:
+        if not self._traversed:
             if self.dependencies:
                 dependencies_kwargs = [kw for kw in self.dependencies if kw.arg is not None]
                 new_kwargs = dict(self.own_kwargs)
@@ -54,22 +58,22 @@ class FunctionNode(object):
             else:
                 new_kwargs = self.own_kwargs
                 new_args = self.own_args
-            self.saved_value = self.funcwrapper.get(*new_args, **new_kwargs)
-        return self.saved_value
+            self._saved_value = self.funcwrapper.get(*new_args, **new_kwargs)
+            self._traversed = True
+        return self._saved_value
 
     def _args_from_dependencies(self, dependencies):
         newargs = []
-        if dependencies: # Non-empty and non-null dependencies
+        if dependencies:  # Non-empty and non-null dependencies
             for dependency in dependencies:
                 column = dependency.column
                 funcnode = self.col_funcnode_map.nodefor(column)
                 newargs.append(funcnode.getvalue())
         return newargs
 
-
     def _kwargs_from_dependencies(self, dependencies):
         newkwargs = {}
-        if dependencies: # Non-empty and non-null dependencies
+        if dependencies:  # Non-empty and non-null dependencies
             for dependency in dependencies:
                 argname = dependency.arg
                 column = dependency.column
