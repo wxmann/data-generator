@@ -35,6 +35,15 @@ class ConfigBuilderTest(unittest.TestCase):
         else:
             return random.randint(70000, 90000)
 
+    def test_copy(self):
+        builder = bldr.ConfigBuilder()
+        builder.newcolumn('TRANCHE_COLLATERAL_TYPE').usefunc(random.choice).useargs(['A', 'B', 'C', 'D', 'E']).build()
+        builder.newcolumn('COPY_COLUMN').copyconfig('TRANCHE_COLLATERAL_TYPE')
+        builder.newcolumn('COUNT').usefunc(itertools.count).useargs(1).useformatter(formatters.prepend('Ref_')).userepeater(bldr.REPEATER_SINGLE, 5).build()
+        builder.newcolumn('COPY_COUNT').copyconfig('COUNT')
+        config = builder.output_config()
+        writer.write_csv("../resources/HopeCopy.csv", config, 100)
+
 
     def test_e2e_ECL(self):
         clustersize = 30

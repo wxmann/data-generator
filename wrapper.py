@@ -1,3 +1,4 @@
+import copy
 import inspect
 
 __author__ = 'tangz'
@@ -10,6 +11,9 @@ class FunctionWrapper(object):
         self._isgenerator = inspect.isgeneratorfunction(func)
         self._iterable = hasattr(func, '__iter__')
         self._iterator = None
+
+    def __deepcopy__(self, memo):
+        return FunctionWrapper(self.func)
 
     def eval(self, *args, **kwargs):
         if self._isgenerator:
@@ -29,6 +33,9 @@ class FormatWrapper(object):
         self.funcwrapper = funcwrapper
         self.formatter = formatter
 
+    def __deepcopy__(self, memo):
+        return FormatWrapper(copy.deepcopy(self.funcwrapper, memo), self.formatter)
+
     def eval(self, *args, **kwargs):
         value = self.funcwrapper.eval(*args, **kwargs)
         return self.formatter(value)
@@ -42,6 +49,9 @@ class SingleRepeater(object):
         self._n = n
         self._i = 0
         self._repeateditem = None
+
+    def __deepcopy__(self, memo):
+        return SingleRepeater(copy.deepcopy(self.funcwrapper, memo), self._n)
 
     def eval(self, *args, **kwargs):
         if self._i == 0:
@@ -63,6 +73,9 @@ class ClusterRepeater(object):
         self._repeateditems = []
         self._i = 0
         self._useolditems = False
+
+    def __deepcopy__(self, memo):
+        return ClusterRepeater(copy.deepcopy(self.funcwrapper, memo), self._n)
 
     def eval(self, *args, **kwargs):
         if self._useolditems:

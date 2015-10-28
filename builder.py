@@ -1,3 +1,4 @@
+import copy
 from config import Dependency, FunctionNode, TabularConfig
 from wrapper import FunctionWrapper, ClusterRepeater, SingleRepeater, FormatWrapper
 
@@ -92,6 +93,15 @@ class ColumnSettingBuilder(object):
     def useformatter(self, formatter):
         self.formatter = formatter
         return self
+
+    def copyconfig(self, column):
+        othernode = self.root_builder.tabularconfig.nodefor(column)
+        otherfuncwrapper = copy.deepcopy(othernode.funcwrapper)
+        self.args = othernode.own_args
+        self.kwargs = othernode.own_kwargs
+        self.dependencies = othernode.dependencies
+        newnode = FunctionNode(otherfuncwrapper, self.args, self.kwargs, self.dependencies)
+        self.root_builder.tabularconfig.setnode(self.column, newnode)
 
     def build(self):
         if self.column is None or self.column == "":
