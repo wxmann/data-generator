@@ -1,7 +1,7 @@
 import random
 import unittest
 import itertools
-from functions import basic, dates, formatters
+from functions import dates, formatters
 import writer
 import builder as bldr
 
