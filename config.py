@@ -58,7 +58,7 @@ class FunctionNode(object):
             else:
                 new_kwargs = self.own_kwargs
                 new_args = self.own_args
-            self._saved_value = self.funcwrapper.get(*new_args, **new_kwargs)
+            self._saved_value = self.funcwrapper.eval(*new_args, **new_kwargs)
             self._traversed = True
         return self._saved_value
 

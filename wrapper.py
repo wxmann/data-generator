@@ -10,7 +10,7 @@ class FunctionWrapper(object):
         self._iterable = inspect.isgeneratorfunction(func) or hasattr(func, '__iter__')
         self._iterator = None
 
-    def get(self, *args, **kwargs):
+    def eval(self, *args, **kwargs):
         if self._iterable:
             if self._iterator is None:
                 self._iterator = self.func(*args, **kwargs)
@@ -24,8 +24,8 @@ class FormatWrapper(object):
         self.funcwrapper = funcwrapper
         self.formatter = formatter
 
-    def get(self, *args, **kwargs):
-        value = self.funcwrapper.get(*args, **kwargs)
+    def eval(self, *args, **kwargs):
+        value = self.funcwrapper.eval(*args, **kwargs)
         return self.formatter(value)
 
 
@@ -38,9 +38,9 @@ class SingleRepeater(object):
         self._i = 0
         self._repeateditem = None
 
-    def get(self, *args, **kwargs):
+    def eval(self, *args, **kwargs):
         if self._i == 0:
-            self._repeateditem = self.funcwrapper.get(*args, **kwargs)
+            self._repeateditem = self.funcwrapper.eval(*args, **kwargs)
 
         self._i += 1
         if self._i >= self._n:
@@ -59,11 +59,11 @@ class ClusterRepeater(object):
         self._i = 0
         self._useolditems = False
 
-    def get(self, *args, **kwargs):
+    def eval(self, *args, **kwargs):
         if self._useolditems:
             item = self._repeateditems[self._i]
         else:
-            item = self.funcwrapper.get(*args, **kwargs)
+            item = self.funcwrapper.eval(*args, **kwargs)
             self._repeateditems.append(item)
 
         self._i += 1

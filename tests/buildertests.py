@@ -66,5 +66,5 @@ class ConfigBuilderTest(unittest.TestCase):
             .norepeater().useformatter(formatters.nround(3)).build()
 
         config = builder.output_config()
-        writer.write_csv("../resources/ECL-100-30quarters.csv", config, clustersize * num_contractrefs)
+        writer.write_csv("../resources/ECL-100-30quarters2.csv", config, clustersize * num_contractrefs)
 
