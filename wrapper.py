@@ -7,16 +7,21 @@ class FunctionWrapper(object):
     def __init__(self, func):
         self.func = func
         # this will allow it to handle both generators and iterators
-        self._iterable = inspect.isgeneratorfunction(func) or hasattr(func, '__iter__')
+        self._isgenerator = inspect.isgeneratorfunction(func)
+        self._iterable = hasattr(func, '__iter__')
         self._iterator = None
 
     def eval(self, *args, **kwargs):
-        if self._iterable:
+        if self._isgenerator:
             if self._iterator is None:
                 self._iterator = self.func(*args, **kwargs)
-            return next(self._iterator)
+        elif self._iterable:
+            if self._iterator is None:
+                self._iterator = iter(self.func(*args, **kwargs))
         else:
             return self.func(*args, **kwargs)
+        # this only gets called if it's an iterable
+        return next(self._iterator)
 
 
 class FormatWrapper(object):

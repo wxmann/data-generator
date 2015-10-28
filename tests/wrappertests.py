@@ -62,6 +62,14 @@ class WrapperTests(unittest.TestCase):
         self.assertEqual(funcwrapper.eval(start=start, inc=inc), 6)
         self.assertEqual(funcwrapper.eval(start=start, inc=inc), 8)
 
+    def test_function_wrapper_for_iterable_external_iterator(self):
+        funcwrapper = FunctionWrapper(testdata.CountingIterableOutsideIterator)
+        start = 4
+        inc = 2
+        self.assertEqual(funcwrapper.eval(start=start, inc=inc), 4)
+        self.assertEqual(funcwrapper.eval(start=start, inc=inc), 6)
+        self.assertEqual(funcwrapper.eval(start=start, inc=inc), 8)
+
     def test_single_repeater(self):
         funcwrapper = FunctionWrapper(testdata.counter)
         repeated = SingleRepeater(funcwrapper, 4)
