@@ -1,79 +1,174 @@
-import random
 import unittest
-import itertools
-from functions import dates, formatters
-import writer
 import builder as bldr
+from config import FunctionNode, Dependency
+from functions import formatters
+from wrapper import FunctionWrapper, SingleRepeater, ClusterRepeater, FormatWrapper
 
 __author__ = 'tangz'
 
+
 class ConfigBuilderTest(unittest.TestCase):
 
-    def test_e2e_with_builder(self):
-        clustersize = 10
-        const = lambda value: value
-
+    def test_build_basic_function_with_no_args(self):
+        column = 'Test Column'
         builder = bldr.ConfigBuilder()
-
-        builder.newglobalsetting().userepeater(bldr.REPEATER_SINGLE, clustersize).build()
-
-        builder.newcolumn('STRESS_TESTING_SCENARIO_ID').usefunc(const).useargs(0).build()
-        builder.newcolumn('TRANCHE_COLLATERAL_TYPE').usefunc(random.choice).useargs(['COLLATERALIZED', 'NON-COLLATERALIZED']).build()
-        builder.newcolumn('BS_TYPE').usefunc(const).usekwargs(value='DLO').build()
-        builder.newcolumn('K_MATURITY').usefunc(random.uniform).norepeater().usekwargs(a=1, b=5).build()
-        builder.newcolumn('LGD').usefunc(random.random).norepeater().build()
-        builder.newcolumn('LGD2').usefunc(lambda x: x/2.0).add_named_dependency('LGD', 'x').build()
-        # builder.newcolumn('Date').usefunc(dates.quarterlyiter).usekwargs(startdate='01/01/2015').userepeater(bldr.REPEATER_CLUSTER, clustersize).build()
+        fn = lambda: 3
+        builder.newcolumn(column).usefunc(fn).build()
 
         config = builder.output_config()
-        writer.write_csv("../resources/Hope4.csv", config, 100)
+        built_node = config.nodefor(column)
 
+        expected_node = FunctionNode(FunctionWrapper(fn))
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
 
-    def _total_exposure_func(self, revolving, ending_bal):
-        if revolving == 'N':
-            return ending_bal
-        else:
-            return random.randint(70000, 90000)
-
-    def test_copy(self):
+    def test_build_basic_function_with_args(self):
+        column = 'Test Column'
         builder = bldr.ConfigBuilder()
-        builder.newcolumn('TRANCHE_COLLATERAL_TYPE').usefunc(random.choice).useargs(['A', 'B', 'C', 'D', 'E']).build()
-        builder.newcolumn('COPY_COLUMN').copyconfig('TRANCHE_COLLATERAL_TYPE')
-        builder.newcolumn('COUNT').usefunc(itertools.count).useargs(1).useformatter(formatters.prepend('Ref_')).userepeater(bldr.REPEATER_SINGLE, 5).build()
-        builder.newcolumn('COPY_COUNT').copyconfig('COUNT')
-        config = builder.output_config()
-        writer.write_csv("../resources/HopeCopy.csv", config, 100)
-
-
-    def test_e2e_ECL(self):
-        clustersize = 30
-        num_contractrefs = 100
-
-        builder = bldr.ConfigBuilder()
-
-        builder.newglobalsetting().userepeater(bldr.REPEATER_SINGLE, clustersize).build()
-
-        builder.newcolumn('Date').usefunc(dates.quarters_iter).usekwargs(startyear=2015, startmonth=3)\
-            .userepeater(bldr.REPEATER_CLUSTER, clustersize)\
-            .useformatter(formatters.dateformatter("%m/%d/%Y")).build()
-        builder.newcolumn('Reference Id').usefunc(itertools.count).usekwargs(start=1)\
-            .useformatter(formatters.prepend('Ref_')).build()
-        builder.newcolumn('Ending Balance').usefunc(random.randint)\
-            .useargs(50000, 60000)\
-            .norepeater().build()
-        builder.newcolumn('Total Exposure').usefunc(self._total_exposure_func)\
-            .add_named_dependency('Ending Balance', 'ending_bal')\
-            .add_named_dependency('Revolving (Y or N)', 'revolving')\
-            .norepeater().build()
-        builder.newcolumn('Performing (Y or N)').usefunc(random.choice).useargs(['Y', 'N']).build()
-        builder.newcolumn('Revolving (Y or N)').usefunc(random.choice).useargs(['Y', 'N']).build()
-        builder.newcolumn('Average Recovery Years').usefunc(random.randint).useargs(1, 9).build()
-        builder.newcolumn('Effective Interest Rate').usefunc(random.uniform).useargs(5, 9)\
-            .userepeater(bldr.REPEATER_CLUSTER, clustersize)\
-            .useformatter(formatters.nround(3)).build()
-        builder.newcolumn('LGD Effective rate').usefunc(random.uniform).useargs(1, 2)\
-            .norepeater().useformatter(formatters.nround(3)).build()
+        fn = lambda x: x
+        builder.newcolumn(column).usefunc(fn).useargs(1).build()
 
         config = builder.output_config()
-        writer.write_csv("../resources/ECL-100-30quarters2.csv", config, clustersize * num_contractrefs)
+        built_node = config.nodefor(column)
+
+        expected_node = FunctionNode(FunctionWrapper(fn), args=[1])
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
+
+    def test_build_basic_function_with_kwargs(self):
+        column = 'Test Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x: x
+        builder.newcolumn(column).usefunc(fn).usekwargs(x=1).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column)
+
+        expected_node = FunctionNode(FunctionWrapper(fn), kwargs={'x': 1})
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
+
+    def test_build_function_withargs_notequal_withkwargs(self):
+        column = 'Test Column'
+        fn = lambda x: x
+
+        builder = bldr.ConfigBuilder()
+        builder.newcolumn(column).usefunc(fn).useargs(1).build()
+        config = builder.output_config()
+        built_node1 = config.nodefor(column)
+
+        builder2 = bldr.ConfigBuilder()
+        builder2.newcolumn(column).usefunc(fn).usekwargs(x=1).build()
+        built_node2 = builder2.output_config().nodefor(column)
+
+        built_node1.col_funcnode_map = config
+        built_node2.col_funcnode_map = config
+
+        self.assertNotEqual(built_node1, built_node2)
+
+    def test_build_function_with_one_dependency(self):
+        column1 = 'Test Column'
+        column2 = 'Dependency Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x: x
+        builder.newcolumn(column1).usefunc(fn).add_dependency(column2).build()
+        builder.newcolumn(column2).usefunc(fn).useargs(1).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column1)
+
+        expected_node1 = FunctionNode(FunctionWrapper(fn), dependencies=[Dependency(column2)])
+        expected_node1.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node1)
+
+    def test_build_function_with_dependency_arg_kwarg_mix(self):
+        column1 = 'Test Column'
+        column2 = 'Dependency Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x, y, z: x + y + z
+        const = lambda x: x
+        builder.newcolumn(column1).usefunc(fn).add_dependency(column2).useargs(3).usekwargs(y=2).build()
+        builder.newcolumn(column2).usefunc(const).useargs(1).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column1)
+
+        expected_node1 = FunctionNode(FunctionWrapper(fn), dependencies=[Dependency(column2)], args=[3], kwargs={'y': 2})
+        expected_node1.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node1)
+
+    def test_build_function_with_multiple_dependencies(self):
+        column1 = 'Test Column'
+        column2 = 'Dependency Column 1'
+        column3 = 'Dependency Column 2'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x, y: x + y
+        const = lambda x: x
+        builder.newcolumn(column1).usefunc(fn).add_named_dependency(column2, 'x')\
+            .add_named_dependency(column3, 'y').build()
+        builder.newcolumn(column2).usefunc(const).useargs(1).build()
+        builder.newcolumn(column3).usefunc(const).useargs(2).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column1)
+
+        expected_node1 = FunctionNode(FunctionWrapper(fn), dependencies=[Dependency(column2, 'x'),
+                                                                         Dependency(column3, 'y')])
+        expected_node1.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node1)
+
+    def test_build_function_with_single_repeater(self):
+        column = 'Test Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x: x
+        builder.newcolumn(column).usefunc(fn).useargs(1).userepeater(bldr.REPEATER_SINGLE, 5).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column)
+
+        expected_node = FunctionNode(SingleRepeater(FunctionWrapper(fn), 5), args=[1])
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
+
+    def test_build_function_with_cluster_repeater(self):
+        column = 'Test Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x: x
+        builder.newcolumn(column).usefunc(fn).useargs(1).userepeater(bldr.REPEATER_CLUSTER, 5).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column)
+
+        expected_node = FunctionNode(ClusterRepeater(FunctionWrapper(fn), 5), args=[1])
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
+
+    def test_build_function_with_formatter(self):
+        column = 'Test Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x: x
+        formatter = formatters.prepend("Ref_")
+        builder.newcolumn(column).usefunc(fn).useargs(1).useformatter(formatter).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column)
+
+        expected_node = FunctionNode(FormatWrapper(FunctionWrapper(fn), formatter), args=[1])
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
+
+    def test_build_function_with_formatter_and_repeater(self):
+        column = 'Test Column'
+        builder = bldr.ConfigBuilder()
+        fn = lambda x: x
+        formatter = formatters.prepend("Ref_")
+        builder.newcolumn(column).usefunc(fn).useargs(1).useformatter(formatter).userepeater(bldr.REPEATER_SINGLE,
+                                                                                             5).build()
+
+        config = builder.output_config()
+        built_node = config.nodefor(column)
+
+        expected_node = FunctionNode(SingleRepeater(FormatWrapper(FunctionWrapper(fn), formatter), 5), args=[1])
+        expected_node.col_funcnode_map = config
+        self.assertEqual(built_node, expected_node)
 

@@ -27,11 +27,19 @@ class Dependency(object):
         self.arg = arg
         self.column = column
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.arg == other.arg and self.column == other.column
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class FunctionNode(object):
     def __init__(self, funcwrapper, args=None, kwargs=None, dependencies=None):
         self.funcwrapper = funcwrapper
-        self.dependencies = dependencies
+        self.dependencies = [] if dependencies is None else dependencies
         self.col_funcnode_map = None
         self.own_args = [] if args is None else args
         self.own_kwargs = {} if kwargs is None else kwargs
@@ -80,3 +88,13 @@ class FunctionNode(object):
                 funcnode = self.col_funcnode_map.nodefor(column)
                 newkwargs[argname] = funcnode.getvalue()
         return newkwargs
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return (self.funcwrapper, tuple(self.dependencies), tuple(self.own_args),
+                    self.own_kwargs) == (other.funcwrapper, tuple(other.dependencies), tuple(other.own_args),
+                                         other.own_kwargs) and self.col_funcnode_map is other.col_funcnode_map
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

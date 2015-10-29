@@ -27,6 +27,14 @@ class FunctionWrapper(object):
         # this only gets called if it's an iterable
         return next(self._iterator)
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.func == other.func
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class FormatWrapper(object):
     def __init__(self, funcwrapper, formatter):
@@ -39,6 +47,14 @@ class FormatWrapper(object):
     def eval(self, *args, **kwargs):
         value = self.funcwrapper.eval(*args, **kwargs)
         return self.formatter(value)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.funcwrapper == other.funcwrapper and self.formatter == other.formatter
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class SingleRepeater(object):
@@ -62,6 +78,14 @@ class SingleRepeater(object):
             self._i = 0
 
         return self._repeateditem
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.funcwrapper == other.funcwrapper and self._n == other._n
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 
 class ClusterRepeater(object):
@@ -90,3 +114,11 @@ class ClusterRepeater(object):
             self._useolditems = True
 
         return item
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.funcwrapper == other.funcwrapper and self._n == other._n
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
